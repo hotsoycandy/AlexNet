@@ -7,40 +7,52 @@ class NeuralNetwork (nn.Module) :
     super().__init__()
 
     self.linear_relu_stack = nn.Sequential(
-        nn.Conv2d(
-          in_channels = 3,
-          out_channels = 96,
-          kernel_size = 11,
-          stride = 4,
-          padding = 2,
-        ),
-        nn.ReLU(),
-        nn.MaxPool2d(
-          kernel_size = 3,
-          stride = 2,
-        )
+      # Layer1. Convolutional Layer
+      nn.Conv2d(
+        in_channels = 3,
+        out_channels = 96,
+        kernel_size = 11,
+        stride = 4,
+        padding = 2,
+      ),
+      nn.ReLU(),
+      nn.MaxPool2d(
+        kernel_size = 3,
+        stride = 2,
+      ),
 
-        # nn.Conv2d(),
-        # nn.ReLU(),
-        # nn.MaxPool2d(),
+      # Layer2. Convolutional Layer
+      nn.Conv2d(
+        in_channels = 96,
+        out_channels = 256,
+        kernel_size = 5,
+        stride = 1,
+        padding = 2,
+        bias = True,
+      ),
+      nn.ReLU(),
+      nn.MaxPool2d(
+        kernel_size = 3,
+        stride = 2,
+      ),
 
-        # nn.Conv2d(),
-        # nn.ReLU(),
-        # nn.MaxPool2d(),
+      # nn.Conv2d(),
+      # nn.ReLU(),
+      # nn.MaxPool2d(),
 
-        # nn.Conv2d(),
-        # nn.ReLU(),
-        # nn.MaxPool2d(),
+      # nn.Conv2d(),
+      # nn.ReLU(),
+      # nn.MaxPool2d(),
 
-        # nn.Linear(),
-        # nn.ReLU(),
+      # nn.Linear(),
+      # nn.ReLU(),
 
-        # nn.Linear(),
-        # nn.ReLU(),
+      # nn.Linear(),
+      # nn.ReLU(),
 
-        # nn.Linear(),
+      # nn.Linear(),
 
-        # nn.Softmax()
+      # nn.Softmax()
     )
 
   def forward (self, x):
