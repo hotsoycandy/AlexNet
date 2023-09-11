@@ -15,6 +15,10 @@ class NeuralNetwork (nn.Module) :
           padding = 2,
         ),
         nn.ReLU(),
+        nn.MaxPool2d(
+          kernel_size = 3,
+          stride = 2,
+        )
 
         # nn.Conv2d(),
         # nn.ReLU(),
