@@ -14,12 +14,7 @@ class NeuralNetwork (nn.Module) :
           stride = 4,
           padding = 2,
         ),
-        # nn.MaxPool2d(),
-        # nn.ReLU(),
-
-        # nn.Conv2d(),
-        # nn.ReLU(),
-        # nn.MaxPool2d(),
+        nn.ReLU(),
 
         # nn.Conv2d(),
         # nn.ReLU(),
