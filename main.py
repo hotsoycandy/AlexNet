@@ -60,7 +60,7 @@ class NeuralNetwork (nn.Module) :
 
       # Layer5. Convolutional Layer
       nn.Conv2d(
-        in_channels =384,
+        in_channels = 384,
         out_channels = 256,
         kernel_size = 3,
         stride = 1,
