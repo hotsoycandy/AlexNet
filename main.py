@@ -36,23 +36,16 @@ class NeuralNetwork (nn.Module) :
         stride = 2,
       ),
 
-      # nn.Conv2d(),
-      # nn.ReLU(),
-      # nn.MaxPool2d(),
-
-      # nn.Conv2d(),
-      # nn.ReLU(),
-      # nn.MaxPool2d(),
-
-      # nn.Linear(),
-      # nn.ReLU(),
-
-      # nn.Linear(),
-      # nn.ReLU(),
-
-      # nn.Linear(),
-
-      # nn.Softmax()
+      # Layer3. Convolutional Layer
+      nn.Conv2d(
+        in_channels = 256,
+        out_channels = 384,
+        kernel_size = 3,
+        stride = 1,
+        padding = 1,
+        bias = True,
+      ),
+      nn.ReLU(),
     )
 
   def forward (self, x):
