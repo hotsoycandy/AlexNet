@@ -57,6 +57,21 @@ class NeuralNetwork (nn.Module) :
         bias = True,
       ),
       nn.ReLU(),
+
+      # Layer5. Convolutional Layer
+      nn.Conv2d(
+        in_channels =384,
+        out_channels = 256,
+        kernel_size = 3,
+        stride = 1,
+        padding = 1,
+        bias = True,
+      ),
+      nn.ReLU(),
+      nn.MaxPool2d(
+        kernel_size = 3,
+        stride = 2,
+      ),
     )
 
   def forward (self, x):
