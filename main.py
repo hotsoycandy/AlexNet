@@ -72,6 +72,20 @@ class NeuralNetwork (nn.Module) :
         kernel_size = 3,
         stride = 2,
       ),
+
+      nn.Flatten(),
+
+      # Layer6. Affine Layer
+      nn.Linear(9216, 4096),
+      nn.ReLU(),
+
+      # Layer7. Affine Layer
+      nn.Linear(4096, 4096),
+      nn.ReLU(),
+
+      # Layer8. Affine Layer
+      nn.Linear(4096, 1000),
+      nn.Softmax(1),
     )
 
   def forward (self, x):
