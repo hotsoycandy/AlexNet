@@ -15,6 +15,12 @@ class NeuralNetwork (nn.Module) :
         stride = 4,
         padding = 2,
       ),
+      torch.nn.LocalResponseNorm(
+        size = 5,
+        alpha = 1e-4,
+        beta = 0.75,
+        k = 2,
+      ),
       nn.ReLU(),
       nn.MaxPool2d(
         kernel_size = 3,
@@ -29,6 +35,12 @@ class NeuralNetwork (nn.Module) :
         stride = 1,
         padding = 2,
         bias = True,
+      ),
+      torch.nn.LocalResponseNorm(
+        size = 5,
+        alpha = 1e-4,
+        beta = 0.75,
+        k = 2,
       ),
       nn.ReLU(),
       nn.MaxPool2d(
