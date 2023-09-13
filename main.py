@@ -77,10 +77,12 @@ class NeuralNetwork (nn.Module) :
 
       # Layer6. Affine Layer
       nn.Linear(9216, 4096),
+      nn.Dropout(p = 0.5),
       nn.ReLU(),
 
       # Layer7. Affine Layer
       nn.Linear(4096, 4096),
+      nn.Dropout(p = 0.5),
       nn.ReLU(),
 
       # Layer8. Affine Layer
