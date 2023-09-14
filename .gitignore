@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 
 ImageNet_DATA/
+Fashion_MNIST_Data/
