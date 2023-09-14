@@ -31,8 +31,16 @@ def get_datas (batch_size):
     transform=trans,
   )
 
-  train_dataloader = DataLoader(training_data, batch_size=batch_size)
-  test_dataloader = DataLoader(test_data, batch_size=batch_size)
+  train_dataloader = DataLoader(
+    training_data,
+    batch_size = batch_size,
+    shuffle = True
+  )
+  test_dataloader = DataLoader(
+    test_data,
+    batch_size = batch_size,
+    shuffle = False
+  )
 
   def get_label (idx):
     return training_data.classes[idx]
@@ -86,15 +94,15 @@ def train (dataloader, model, loss_fn, optimizer):
     pred = model(X)
     loss = loss_fn(pred, y)
 
+    # print loss every 10th learning
+    if batch % 10 == 0:
+      current = (batch) * len(X)
+      print(f"Batch{batch:>5d}. loss: {loss:>7f} [{current:>7d}/{size:>7d}]")
+
     # backward propagation
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
-
-    # print loss every 10th learning
-    if batch % 10 == 0:
-      current = (batch + 1) * len(X)
-      print(f"loss: {loss:>7f} [{current}/{size}]")
 
 def test (dataloader, model, loss_fn):
   size = len(dataloader.dataset)
@@ -115,15 +123,16 @@ def test (dataloader, model, loss_fn):
 
 if __name__ == '__main__':
   batch_size = 128
-  epochs = 5
-  learning_rate = 1e-3
+  epochs = 20
+  learning_rate = 1e-2
 
   device = getDevice()
-  print(f"Using {device} device")
+  device_count = torch.cuda.device_count()
+  print(f"Using {device} device. Cuda device count: {device_count}")
 
   _, _, train_dataloader, test_dataloader, get_label = get_datas(batch_size)
 
-  print_imgs(train_dataloader, get_label)
+  # print_imgs(train_dataloader, get_label)
 
   model = AlexNet().to(device)
   torchsummary(
@@ -135,6 +144,7 @@ if __name__ == '__main__':
   loss_fn = nn.CrossEntropyLoss()
   optimizer = torch.optim.SGD(
     model.parameters(),
+    momentum = 0.9,
     lr = learning_rate,
   )
 
