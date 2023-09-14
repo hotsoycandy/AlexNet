@@ -1,4 +1,4 @@
-categories = {
+image_net_categories = {
   "n02119789": "kit fox, Vulpes macrotis",
   "n02100735": "English setter",
   "n02096294": "Australian terrier",
