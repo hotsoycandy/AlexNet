@@ -1,180 +1,107 @@
 import torch
+from utils.categories import image_net_categories
+from utils.getDevice import getDevice
+from matplotlib import pyplot as plt
+from AlexNet import AlexNet
 from torch import nn
-
+from torchvision import transforms as torchTrans
+from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
+from torchsummary import summary as torchsummary
+
 from torchvision import datasets
-from torchvision.transforms import ToTensor
 
-training_data = datasets.ImageNet(
-  root = "ImageNet_DATA",
-  split = "train",
-  transform = ToTensor(),
-)
+# get Fashion MNist
+def get_datas (batch_size):
+  trans = torchTrans.Compose([
+    torchTrans.Resize((224, 224)),
+    torchTrans.ToTensor()
+  ])
 
-test_data = datasets.ImageNet(
-  root = "ImageNet_DATA",
-  split = "val",
-  transform = ToTensor(),
-)
+  training_data = datasets.FashionMNIST(
+    root="Fashion_MNIST_Data",
+    train=True,
+    download=True,
+    transform=trans,
+  )
+  test_data = datasets.FashionMNIST(
+    root="Fashion_MNIST_Data",
+    train=False,
+    download=True,
+    transform=trans,
+  )
 
-batch_size = 128
+  train_dataloader = DataLoader(training_data, batch_size=batch_size)
+  test_dataloader = DataLoader(test_data, batch_size=batch_size)
 
-train_dataloader = DataLoader(training_data, batch_size = batch_size)
-test_dataloader = DataLoader(test_data, batch_size = batch_size)
+  def get_label (idx):
+    return training_data.classes[idx]
 
-# 모델을 정의합니다.
-class NeuralNetwork (nn.Module) :
-  def __init__ (self) :
-    super().__init__()
+  return training_data, test_data, train_dataloader, test_dataloader, get_label
 
-    self.linear_relu_stack = nn.Sequential(
-      # Layer1. Convolutional Layer
-      nn.Conv2d(
-        in_channels = 3,
-        out_channels = 96,
-        kernel_size = 11,
-        stride = 4,
-        padding = 2,
-      ),
-      torch.nn.LocalResponseNorm(
-        size = 5,
-        alpha = 1e-4,
-        beta = 0.75,
-        k = 2,
-      ),
-      nn.ReLU(),
-      nn.MaxPool2d(
-        kernel_size = 3,
-        stride = 2,
-      ),
+# get_datas for ImageNet
+# def get_datas (batch_size):
+#   trans = torchTrans.Compose([
+#     torchTrans.Resize((224, 224)),
+#     torchTrans.ToTensor()
+#   ])
 
-      # Layer2. Convolutional Layer
-      nn.Conv2d(
-        in_channels = 96,
-        out_channels = 256,
-        kernel_size = 5,
-        stride = 1,
-        padding = 2,
-        bias = True,
-      ),
-      torch.nn.LocalResponseNorm(
-        size = 5,
-        alpha = 1e-4,
-        beta = 0.75,
-        k = 2,
-      ),
-      nn.ReLU(),
-      nn.MaxPool2d(
-        kernel_size = 3,
-        stride = 2,
-      ),
+#   datas = ImageFolder(
+#     root = "ImageNet_DATA/val",
+#     transform = trans
+#   )
 
-      # Layer3. Convolutional Layer
-      nn.Conv2d(
-        in_channels = 256,
-        out_channels = 384,
-        kernel_size = 3,
-        stride = 1,
-        padding = 1,
-        bias = True,
-      ),
-      nn.ReLU(),
+#   train_dataloader = DataLoader(
+#     dataset = datas,
+#     batch_size = batch_size,
+#     shuffle = True,
+#   )
 
-      # Layer4. Convolutional Layer
-      nn.Conv2d(
-        in_channels = 384,
-        out_channels = 384,
-        kernel_size = 3,
-        stride = 1,
-        padding = 1,
-        bias = True,
-      ),
-      nn.ReLU(),
+#   test_dataloader = DataLoader(
+#     dataset = datas,
+#     batch_size = batch_size,
+#   )
 
-      # Layer5. Convolutional Layer
-      nn.Conv2d(
-        in_channels = 384,
-        out_channels = 256,
-        kernel_size = 3,
-        stride = 1,
-        padding = 1,
-        bias = True,
-      ),
-      nn.ReLU(),
-      nn.MaxPool2d(
-        kernel_size = 3,
-        stride = 2,
-      ),
+#   def get_label (idx):
+#     return image_net_categories[datas.classes[idx]]
 
-      nn.Flatten(),
+#   return datas, datas, train_dataloader, test_dataloader, get_label
 
-      # Layer6. Affine Layer
-      nn.Linear(9216, 4096),
-      nn.Dropout(p = 0.5),
-      nn.ReLU(),
+def print_imgs (train_dataloader, get_label):
+  for _, (X, y) in enumerate(train_dataloader):
+    for (X_i, y_i) in zip(X, y) :
+      img = X_i.numpy().transpose(1, 2, 0)
+      plt.title(get_label(y_i.item()))
+      plt.imshow(img)
+      plt.show()
 
-      # Layer7. Affine Layer
-      nn.Linear(4096, 4096),
-      nn.Dropout(p = 0.5),
-      nn.ReLU(),
-
-      # Layer8. Affine Layer
-      nn.Linear(4096, 1000),
-      nn.Softmax(1),
-    )
-
-  def forward (self, x):
-    logits = self.linear_relu_stack(x)
-    return logits
-
-device = (
-  "cuda"
-  if torch.cuda.is_available()
-  else "mps"
-  if torch.backends.mps.is_available()
-  else "cpu"
-)
-print(f"Using {device} device")
-
-model = NeuralNetwork().to(device)
-print(model)
-
-input = torch.randn((100, 3, 224, 224)).to(device)
-print(input.shape)
-
-output = model.forward(input)
-print(output.shape)
-
-loss_fn = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(
-  model.parameters(),
-  lr = 0.01,
-  momentum = 0.9,
-  weight_decay = 1e-4 * 5)
-
-def train(dataloader, model, loss_fn, optimizer):
+def train (dataloader, model, loss_fn, optimizer):
   size = len(dataloader.dataset)
-  for batch, (X, y) in enumerate(dataloader):
+
+  # epoch
+  for batch, (X, y) in enumerate(dataloader) :
     X, y = X.to(device), y.to(device)
 
-    # 예측 오류 계산
+    # forward propagation
     pred = model(X)
     loss = loss_fn(pred, y)
 
-    # 역전파
+    # backward propagation
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
 
-    if batch % 100 == 0:
-      loss, current = loss.item(), (batch + 1) * len(X)
-      print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+    # print loss every 10th learning
+    if batch % 10 == 0:
+      current = (batch + 1) * len(X)
+      print(f"loss: {loss:>7f} [{current}/{size}]")
 
-def test(dataloader, model, loss_fn):
+def test (dataloader, model, loss_fn):
   size = len(dataloader.dataset)
   num_batches = len(dataloader)
   model.eval()
   test_loss, correct = 0, 0
+
   with torch.no_grad():
     for X, y in dataloader:
       X, y = X.to(device), y.to(device)
@@ -186,12 +113,36 @@ def test(dataloader, model, loss_fn):
   correct /= size
   print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
-epochs = 5
-for t in range(epochs):
-    print(f"Epoch {t+1}\n-------------------------------")
+if __name__ == '__main__':
+  batch_size = 128
+  epochs = 5
+  learning_rate = 1e-3
+
+  device = getDevice()
+  print(f"Using {device} device")
+
+  _, _, train_dataloader, test_dataloader, get_label = get_datas(batch_size)
+
+  print_imgs(train_dataloader, get_label)
+
+  model = AlexNet().to(device)
+  torchsummary(
+    model = model,
+    input_size = (1, 224, 224),
+    device = device
+  )
+
+  loss_fn = nn.CrossEntropyLoss()
+  optimizer = torch.optim.SGD(
+    model.parameters(),
+    lr = learning_rate,
+  )
+
+  for t in range(epochs):
+    print(f"Epoch {t+1}\n{'-' * 50}")
     train(train_dataloader, model, loss_fn, optimizer)
     test(test_dataloader, model, loss_fn)
-print("Done!")
+  print("Done!")
 
-torch.save(model.state_dict(), "model.pth")
-print("Saved PyTorch Model State to model.pth")
+  torch.save(model.state_dict(), "model.pth")
+  print("Saved PyTorch Model State to model.pth")
