@@ -1,5 +1,3 @@
-from matplotlib import pyplot as plt
-
 from torch import nn
 from utils.getDevice import getDevice
 from torchsummary import summary as torchsummary
@@ -12,7 +10,7 @@ class AlexNet (nn.Module) :
     self.layers = nn.Sequential(
       # Layer1. Convolutional Layer
       nn.Conv2d(
-        in_channels = 3,
+        in_channels = 1,
         out_channels = 96,
         kernel_size = 11,
         stride = 4,
@@ -95,7 +93,9 @@ class AlexNet (nn.Module) :
       nn.Linear(4096, 4096),
       nn.ReLU(),
       # Layer8. Affine Layer
-      nn.Linear(4096, 1000),
+      nn.Linear(4096, 10),
+
+      nn.Softmax(1),
     )
 
   def forward (self, x) :
@@ -107,6 +107,6 @@ if __name__ == '__main__' :
   model = AlexNet().to(device)
   torchsummary(
     model = model,
-    input_size = (3, 224, 224),
+    input_size = (1, 224, 224),
     device = device
   )
