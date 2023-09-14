@@ -135,6 +135,7 @@ if __name__ == '__main__':
   # print_imgs(train_dataloader, get_label)
 
   model = AlexNet().to(device)
+  # model.load_state_dict(torch.load("model.pth"))
   torchsummary(
     model = model,
     input_size = (1, 224, 224),
@@ -149,7 +150,7 @@ if __name__ == '__main__':
   )
 
   for t in range(epochs):
-    print(f"Epoch {t+1}\n{'-' * 50}")
+    print(f"Epoch [{t+1}/{epochs}]\n{'-' * 50}")
     train(train_dataloader, model, loss_fn, optimizer)
     test(test_dataloader, model, loss_fn)
   print("Done!")
